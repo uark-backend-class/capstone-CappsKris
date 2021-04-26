@@ -7,23 +7,30 @@ const getTrendingReq = unirest("GET", "https://apidojo-yahoo-finance-v1.p.rapida
 
 let stockData;
 
-function findTickerData(tickerSymbol) {
+async function findTickerData(tickerSymbol) {
   setHeaders(tickerSymbol, getQuoteReq);
+  let res = await getQuoteReq;
 
-  getQuoteReq.end(async function (res) {
-    if (res.error) throw new Error(res.error);
-    const responseData = res.body.quoteResponse.result[0];
-    let dataObj = {};
-    dataObj.price = responseData.regularMarketPrice;
-    dataObj.symbol = tickerSymbol;
-    dataObj.marketHigh = responseData.regularMarketDayHigh;
-    dataObj.marketLow = responseData.regularMarketDayLow;
+  if (res.error) throw new Error(res.error);
+  const responseData = res.body.quoteResponse.result[0];
+  let dataObj = {};
+  dataObj.price = responseData.regularMarketPrice;
+  dataObj.symbol = tickerSymbol;
+  dataObj.marketHigh = responseData.regularMarketDayHigh;
+  dataObj.marketLow = responseData.regularMarketDayLow;
 
-    await setStockData(dataObj);
-  });
+  await setStockData(dataObj);
 
-  return stockData;
+  return dataObj;
 }
+
+async function getTrendingTickers() {
+  setHeaders(null, getTrendingReq);
+  let res = await getTrendingReq;
+  return res.body.finance.result[0].quotes.map(quote => ({ tickerSymbol: quote.symbol, stockName: quote.shortName, price: quote.regularMarketPrice }));
+}
+
+// getTrendingTickers().then(result => console.log(result));
 
 function findTrendingTicker(trendingTickerSym) {
     setHeaders(trendingTickerSym, getTrendingReq);
@@ -61,6 +68,7 @@ async function getAllFavorites(stockData) {
 }
 
 module.exports = {
+  getTrendingTickers,
   findTickerData,
   findTrendingTicker,
   addFavoriteToDb,

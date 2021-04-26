@@ -1,11 +1,13 @@
-const {findTickerData, findTrendingTicker, addFavoriteToDb} = require('../routes/services');
+const {findTickerData, findTrendingTicker, addFavoriteToDb, getTrendingTickers} = require('../routes/services');
 const Stock = require('../mongoose/schema');
 require('../routes/index');
 require('../db');
 
-const getTicker = (req, res) => {
+const getTicker = async (req, res) => {
   const tickerSymbol = req.params.ticker;
-  res.send(findTickerData(tickerSymbol));
+  res.send(await findTickerData(tickerSymbol));
+  // TODO instead of sending data, use res.render to render
+  // a handlebars file with stock data
 }
 
 const getTrendingTicker = (req, res) => {
@@ -29,7 +31,7 @@ const getAllFavorites = (req, res) => {
 const stockPage = async (req, res) => {
   let mainHeader = "Stock Finder";
 
-  let stocks = await Stock.find({}).lean();
+  let stocks = await getTrendingTickers();
 
   res.render('list', { header: mainHeader, stocks });
 }

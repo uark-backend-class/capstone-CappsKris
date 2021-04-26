@@ -1,5 +1,5 @@
 <ul>
-  {{#each stock}}
-  <li>{{ this.tickerSymbol }} {{ this.stockName }}</li>
+  {{#each stocks}}
+  <li><a href='/ticker/{{this.tickerSymbol}}'>{{ this.tickerSymbol }} {{ this.stockName }} {{this.price}}</a></li>
   {{/each}}
 </ul>
